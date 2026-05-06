@@ -4,39 +4,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta charset="UTF-8" />
   <title>Paralox AR</title>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #111; font-family: Arial, sans-serif; overflow: hidden; }
+    body { background: #111; overflow: hidden; font-family: Arial, sans-serif; }
 
     #overlay {
-      position: fixed; inset: 0;
-      background: #111;
+      position: fixed; inset: 0; background: #111;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       z-index: 99999;
     }
-    .logo-text { font-size: 2.2rem; font-weight: 900; letter-spacing: 0.3em; color: #C8D400; margin-bottom: 8px; }
-    .sub { font-size: 0.75rem; letter-spacing: 0.2em; color: #666; text-transform: uppercase; margin-bottom: 50px; }
+    .logo-text { font-size: 2rem; font-weight: 900; letter-spacing: 0.3em; color: #C8D400; margin-bottom: 8px; }
+    .sub { font-size: 0.7rem; letter-spacing: 0.2em; color: #666; text-transform: uppercase; margin-bottom: 50px; }
     #start-btn {
       background: #C8D400; color: #111; border: none;
       padding: 18px 44px; font-size: 1rem; font-weight: 900;
-      letter-spacing: 0.15em; text-transform: uppercase;
-      border-radius: 4px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+      letter-spacing: 0.15em; text-transform: uppercase; border-radius: 4px;
     }
-
-    #loading {
-      position: fixed; inset: 0;
-      background: #111;
-      display: none; flex-direction: column;
-      align-items: center; justify-content: center;
-      z-index: 9998; color: #fff;
-    }
-    .spinner {
-      width: 40px; height: 40px;
-      border: 3px solid #333; border-top: 3px solid #C8D400;
-      border-radius: 50%; animation: spin 0.8s linear infinite; margin-top: 24px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     #hint {
       position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
@@ -46,16 +32,12 @@
       z-index: 200; white-space: nowrap; display: none;
     }
     #hint span { color: #C8D400; font-weight: bold; }
-
     #found {
       position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
       background: rgba(200,212,0,0.15); color: #C8D400;
       padding: 8px 20px; border-radius: 20px; font-size: 0.8rem;
-      border: 1px solid rgba(200,212,0,0.5);
-      z-index: 200; display: none;
+      border: 1px solid rgba(200,212,0,0.5); z-index: 200; display: none;
     }
-
-    #ar-container { position: fixed; inset: 0; display: none; }
   </style>
 </head>
 <body>
@@ -66,103 +48,67 @@
     <button id="start-btn">AR STARTEN</button>
   </div>
 
-  <div id="loading">
-    <div class="logo-text">PARALOX</div>
-    <div class="sub" style="color:#999">Kamera wird geladen...</div>
-    <div class="spinner"></div>
-  </div>
-
   <div id="found">Logo erkannt</div>
   <div id="hint">Kamera auf das <span>Paralox-Logo</span> richten</div>
-  <div id="ar-container"></div>
+
+  <a-scene
+    id="scene"
+    mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;"
+    color-space="sRGB"
+    renderer="colorManagement: true;"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+  >
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <a-entity mindar-image-target="targetIndex: 0">
+      <a-torus position="0 0 0" radius="0.25" radius-tubular="0.008"
+        color="#C8D400" opacity="0.7" rotation="-90 0 0"
+        animation="property: rotation; from: -90 0 0; to: -90 0 360; dur: 4000; easing: linear; loop: true;">
+      </a-torus>
+      <a-entity
+        geometry="primitive: cone; radiusBottom: 0.18; radiusTop: 0; height: 0.28; segmentsRadial: 3;"
+        material="color: #C8D400; emissive: #4a5000; emissiveIntensity: 0.4"
+        position="0 0.16 0"
+        animation="property: rotation; from: 0 0 0; to: 0 360 0; dur: 5000; easing: linear; loop: true"
+        animation__float="property: position; from: 0 0.13 0; to: 0 0.21 0; dur: 2000; easing: easeInOutSine; loop: true; dir: alternate">
+      </a-entity>
+      <a-entity
+        geometry="primitive: cone; radiusBottom: 0.08; radiusTop: 0; height: 0.12; segmentsRadial: 3;"
+        material="color: #ffffff;"
+        position="0 0.4 0"
+        animation="property: rotation; from: 0 0 0; to: 0 -360 0; dur: 3500; easing: linear; loop: true"
+        animation__float="property: position; from: 0 0.37 0; to: 0 0.45 0; dur: 2000; easing: easeInOutSine; loop: true; dir: alternate; delay: 300">
+      </a-entity>
+    </a-entity>
+  </a-scene>
 
   <script>
     document.getElementById('start-btn').addEventListener('click', function() {
       document.getElementById('overlay').style.display = 'none';
-      document.getElementById('loading').style.display = 'flex';
 
-      // MindAR + AFrame Skripte laden
-      var s1 = document.createElement('script');
-      s1.src = 'https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js';
-      s1.onload = function() {
-        var s2 = document.createElement('script');
-        s2.src = 'https://aframe.io/releases/1.5.0/aframe.min.js';
-        s2.onload = function() {
-          injectScene();
-        };
-        document.head.appendChild(s2);
+      var scene = document.getElementById('scene');
+      var start = function() {
+        scene.systems['mindar-image-system'].start();
+        document.getElementById('hint').style.display = 'block';
+
+        var target = document.querySelector('[mindar-image-target]');
+        target.addEventListener('targetFound', function() {
+          document.getElementById('found').style.display = 'block';
+          document.getElementById('hint').style.opacity = '0';
+        });
+        target.addEventListener('targetLost', function() {
+          document.getElementById('found').style.display = 'none';
+          document.getElementById('hint').style.opacity = '1';
+        });
       };
-      document.head.appendChild(s1);
+
+      if (scene.hasLoaded) {
+        start();
+      } else {
+        scene.addEventListener('loaded', start);
+      }
     });
-
-    function injectScene() {
-      var container = document.getElementById('ar-container');
-      container.style.display = 'block';
-      container.innerHTML = `
-        <a-scene
-          mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;"
-          color-space="sRGB"
-          renderer="colorManagement: true; physicallyCorrectLights: true;"
-          vr-mode-ui="enabled: false"
-          device-orientation-permission-ui="enabled: false"
-        >
-          <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-          <a-entity mindar-image-target="targetIndex: 0">
-
-            <a-torus position="0 0 0" radius="0.25" radius-tubular="0.008"
-              color="#C8D400" opacity="0.6" rotation="-90 0 0"
-              animation="property: rotation; from: -90 0 0; to: -90 0 360; dur: 4000; easing: linear; loop: true;">
-            </a-torus>
-
-            <a-entity
-              geometry="primitive: cone; radiusBottom: 0.18; radiusTop: 0; height: 0.28; segmentsRadial: 3;"
-              material="color: #C8D400; metalness: 0.3; roughness: 0.4; emissive: #6a7000; emissiveIntensity: 0.3"
-              position="0 0.14 0"
-              animation="property: rotation; from: 0 0 0; to: 0 360 0; dur: 5000; easing: linear; loop: true"
-              animation__float="property: position; from: 0 0.12 0; to: 0 0.2 0; dur: 2000; easing: easeInOutSine; loop: true; dir: alternate">
-            </a-entity>
-
-            <a-entity
-              geometry="primitive: cone; radiusBottom: 0.08; radiusTop: 0; height: 0.12; segmentsRadial: 3;"
-              material="color: #ffffff; metalness: 0.5; roughness: 0.3;"
-              position="0 0.38 0"
-              animation="property: rotation; from: 0 0 0; to: 0 -360 0; dur: 3500; easing: linear; loop: true"
-              animation__float="property: position; from: 0 0.35 0; to: 0 0.43 0; dur: 2000; easing: easeInOutSine; loop: true; dir: alternate; delay: 300">
-            </a-entity>
-
-            <a-light type="point" color="#C8D400" intensity="1.5" position="0 0.5 0.2" distance="2"></a-light>
-
-          </a-entity>
-        </a-scene>
-      `;
-
-      // Warten bis Szene geladen
-      setTimeout(function() {
-        var scene = container.querySelector('a-scene');
-        if (scene) {
-          var checkLoaded = setInterval(function() {
-            if (scene.hasLoaded) {
-              clearInterval(checkLoaded);
-              document.getElementById('loading').style.display = 'none';
-              document.getElementById('hint').style.display = 'block';
-
-              var target = scene.querySelector('[mindar-image-target]');
-              if (target) {
-                target.addEventListener('targetFound', function() {
-                  document.getElementById('found').style.display = 'block';
-                  document.getElementById('hint').style.opacity = '0';
-                });
-                target.addEventListener('targetLost', function() {
-                  document.getElementById('found').style.display = 'none';
-                  document.getElementById('hint').style.opacity = '1';
-                });
-              }
-            }
-          }, 500);
-        }
-      }, 1000);
-    }
   </script>
 
 </body>

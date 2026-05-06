@@ -8,35 +8,32 @@
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #111; font-family: Arial, sans-serif; overflow: hidden; }
+    body { background: #111; overflow: hidden; font-family: Arial, sans-serif; }
 
     #overlay {
       position: fixed; inset: 0; background: #111;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      z-index: 99999;
+      z-index: 99999; color: #fff;
     }
-    .logo-text { font-size: 2.2rem; font-weight: 900; letter-spacing: 0.3em; color: #C8D400; margin-bottom: 8px; }
+    .logo { font-size: 2.2rem; font-weight: 900; letter-spacing: 0.3em; color: #C8D400; margin-bottom: 8px; }
     .sub { font-size: 0.75rem; letter-spacing: 0.2em; color: #555; text-transform: uppercase; margin-bottom: 50px; }
+
     #start-btn {
       background: #C8D400; color: #111; border: none;
       padding: 18px 44px; font-size: 1rem; font-weight: 900;
       letter-spacing: 0.15em; text-transform: uppercase;
       border-radius: 4px; cursor: pointer;
+      display: none; /* erst sichtbar wenn Szene geladen */
     }
 
-    #loading {
-      position: fixed; inset: 0; background: #111;
-      display: none; flex-direction: column;
-      align-items: center; justify-content: center;
-      z-index: 9998; color: #fff;
-    }
     .spinner {
-      width: 40px; height: 40px;
+      width: 36px; height: 36px;
       border: 3px solid #333; border-top: 3px solid #C8D400;
-      border-radius: 50%; animation: spin 0.8s linear infinite; margin-top: 24px;
+      border-radius: 50%; animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+    #spinner-label { font-size: 0.75rem; color: #555; margin-top: 12px; letter-spacing: 0.1em; }
 
     #hint {
       position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
@@ -58,22 +55,21 @@
 </head>
 <body>
 
+  <!-- Overlay - zeigt Spinner bis Szene geladen, dann Button -->
   <div id="overlay">
-    <div class="logo-text">PARALOX</div>
+    <div class="logo">PARALOX</div>
     <div class="sub">Escape Games und mehr</div>
-    <button id="start-btn">AR STARTEN</button>
-  </div>
-
-  <div id="loading">
-    <div class="logo-text">PARALOX</div>
-    <div class="sub" style="color:#999">Kamera wird geladen...</div>
-    <div class="spinner"></div>
+    <div class="spinner" id="spinner"></div>
+    <div id="spinner-label">Wird vorbereitet...</div>
+    <button id="start-btn" onclick="startAR()">AR STARTEN</button>
   </div>
 
   <div id="found">Logo erkannt</div>
   <div id="hint">Kamera auf das <span>Paralox-Logo</span> richten</div>
 
+  <!-- Szene lädt im Hintergrund mit autoStart: false -->
   <a-scene
+    id="scene"
     mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;"
     color-space="sRGB"
     renderer="colorManagement: true; physicallyCorrectLights: true;"
@@ -112,30 +108,17 @@
   </a-scene>
 
   <script>
-    var sceneReady = false;
-    var startRequested = false;
+    var scene = document.getElementById('scene');
 
-    var sceneEl = document.querySelector('a-scene');
+    // Wenn Szene fertig geladen: Spinner ausblenden, Button zeigen
+    scene.addEventListener('loaded', function() {
+      document.getElementById('spinner').style.display = 'none';
+      document.getElementById('spinner-label').style.display = 'none';
+      document.getElementById('start-btn').style.display = 'block';
 
-    sceneEl.addEventListener('loaded', function() {
-      sceneReady = true;
-      if (startRequested) doStart();
-    });
-
-    document.getElementById('start-btn').addEventListener('click', function() {
-      document.getElementById('overlay').style.display = 'none';
-      document.getElementById('loading').style.display = 'flex';
-      startRequested = true;
-      if (sceneReady) doStart();
-    });
-
-    function doStart() {
-      var arSystem = sceneEl.systems['mindar-image-system'];
-      arSystem.start().then(function() {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('hint').style.display = 'block';
-
-        var target = sceneEl.querySelector('[mindar-image-target]');
+      // Target-Events registrieren
+      var target = scene.querySelector('[mindar-image-target]');
+      if (target) {
         target.addEventListener('targetFound', function() {
           document.getElementById('found').style.display = 'block';
           document.getElementById('hint').style.opacity = '0';
@@ -144,10 +127,14 @@
           document.getElementById('found').style.display = 'none';
           document.getElementById('hint').style.opacity = '1';
         });
-      }).catch(function(err) {
-        document.getElementById('loading').innerHTML =
-          '<p style="color:#ff4444;padding:30px;text-align:center">Kamera-Zugriff nicht möglich.<br><br>Bitte in den Einstellungen die Kamera-Berechtigung für diesen Browser erlauben.</p>';
-      });
+      }
+    });
+
+    // Button-Klick: jetzt ist es ein echter User-Gesture -> Kamera wird erlaubt
+    function startAR() {
+      document.getElementById('overlay').style.display = 'none';
+      document.getElementById('hint').style.display = 'block';
+      scene.systems['mindar-image-system'].start();
     }
   </script>
 

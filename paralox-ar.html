@@ -1,84 +1,58 @@
-<!DOCTYPE html>
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta charset="UTF-8" />
   <title>Paralox AR</title>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   <style>
     body { margin: 0; overflow: hidden; }
     #hint {
       position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
-      background: rgba(0,0,0,0.8); color: #fff;
-      padding: 12px 24px; border-radius: 30px; font-size: 0.85rem;
-      border: 1px solid rgba(200,212,0,0.4);
-      z-index: 200; white-space: nowrap;
+      background: rgba(0,0,0,0.75); color: #fff;
+      padding: 12px 24px; border-radius: 30px; font-size: 0.9rem;
+      border: 1px solid rgba(200,212,0,0.5);
+      z-index: 999; white-space: nowrap; pointer-events: none;
     }
-    #hint span { color: #C8D400; font-weight: bold; }
+    #hint b { color: #C8D400; }
     #found {
       position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
-      background: rgba(200,212,0,0.15); color: #C8D400;
-      padding: 8px 20px; border-radius: 20px; font-size: 0.8rem;
-      border: 1px solid rgba(200,212,0,0.5);
-      z-index: 200; display: none;
+      background: #C8D400; color: #111;
+      padding: 10px 24px; border-radius: 20px; font-size: 0.9rem; font-weight: bold;
+      z-index: 999; display: none;
     }
   </style>
 </head>
 <body>
 
-  <div id="found">Logo erkannt</div>
-  <div id="hint">Kamera auf das <span>Paralox-Logo</span> richten</div>
+  <div id="hint">Kamera auf das <b>Paralox-Logo</b> richten</div>
+  <div id="found">Logo erkannt!</div>
 
-  <a-scene
-    mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;"
+  <a-scene mindar-image="imageTargetSrc: ./targets.mind;"
     color-space="sRGB"
-    renderer="colorManagement: true; physicallyCorrectLights: true;"
+    renderer="colorManagement: true, physicallyCorrectLights"
     vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false"
-  >
+    device-orientation-permission-ui="enabled: false">
+
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
     <a-entity mindar-image-target="targetIndex: 0">
-
-      <a-torus position="0 0 0" radius="0.25" radius-tubular="0.008"
-        color="#C8D400" opacity="0.6" rotation="-90 0 0"
-        animation="property: rotation; from: -90 0 0; to: -90 0 360; dur: 4000; easing: linear; loop: true;">
-      </a-torus>
-
-      <a-entity
-        geometry="primitive: cone; radiusBottom: 0.18; radiusTop: 0; height: 0.28; segmentsRadial: 3;"
-        material="color: #C8D400; metalness: 0.3; roughness: 0.4; emissive: #6a7000; emissiveIntensity: 0.3"
-        position="0 0.14 0"
-        animation="property: rotation; from: 0 0 0; to: 0 360 0; dur: 5000; easing: linear; loop: true"
-        animation__float="property: position; from: 0 0.12 0; to: 0 0.2 0; dur: 2000; easing: easeInOutSine; loop: true; dir: alternate">
-      </a-entity>
-
-      <a-entity
-        geometry="primitive: cone; radiusBottom: 0.08; radiusTop: 0; height: 0.12; segmentsRadial: 3;"
-        material="color: #ffffff; metalness: 0.5; roughness: 0.3;"
-        position="0 0.38 0"
-        animation="property: rotation; from: 0 0 0; to: 0 -360 0; dur: 3500; easing: linear; loop: true"
-        animation__float="property: position; from: 0 0.35 0; to: 0 0.43 0; dur: 2000; easing: easeInOutSine; loop: true; dir: alternate; delay: 300">
-      </a-entity>
-
-      <a-light type="point" color="#C8D400" intensity="1.5" position="0 0.5 0.2" distance="2"></a-light>
-
+      <a-box color="#C8D400" position="0 0 0" scale="0.3 0.3 0.3"
+        animation="property: rotation; from: 0 0 0; to: 0 360 0; dur: 3000; easing: linear; loop: true">
+      </a-box>
     </a-entity>
+
   </a-scene>
 
   <script>
-    var scene = document.querySelector('a-scene');
-    scene.addEventListener('loaded', function() {
-      var target = document.querySelector('[mindar-image-target]');
-      target.addEventListener('targetFound', function() {
-        document.getElementById('found').style.display = 'block';
-        document.getElementById('hint').style.opacity = '0';
-      });
-      target.addEventListener('targetLost', function() {
-        document.getElementById('found').style.display = 'none';
-        document.getElementById('hint').style.opacity = '1';
-      });
+    var target = document.querySelector('[mindar-image-target]');
+    target.addEventListener('targetFound', function() {
+      document.getElementById('found').style.display = 'block';
+      document.getElementById('hint').style.display = 'none';
+    });
+    target.addEventListener('targetLost', function() {
+      document.getElementById('found').style.display = 'none';
+      document.getElementById('hint').style.display = 'block';
     });
   </script>
 

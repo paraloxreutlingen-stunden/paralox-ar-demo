@@ -2,33 +2,48 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta charset="UTF-8" />
-  <title>Paralox AR</title>
+  <title>Paralox AR - Schatztruhe</title>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   <style>
-    body { margin: 0; overflow: hidden; }
+    body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; }
+
     #hint {
-      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+      position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
       background: rgba(0,0,0,0.75); color: #fff;
       padding: 12px 24px; border-radius: 30px; font-size: 0.9rem;
       border: 1px solid rgba(200,212,0,0.5);
       z-index: 999; white-space: nowrap; pointer-events: none;
-      font-family: Arial, sans-serif;
     }
     #hint b { color: #C8D400; }
-    #found {
-      position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
-      background: #C8D400; color: #111;
-      padding: 10px 24px; border-radius: 20px; font-size: 0.9rem; font-weight: bold;
-      z-index: 999; display: none; font-family: Arial, sans-serif;
-      letter-spacing: 0.1em;
+
+    #btn-open {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+      background: #C8D400; color: #111; border: none;
+      padding: 16px 44px; font-size: 1rem; font-weight: 900;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      border-radius: 50px; cursor: pointer;
+      z-index: 999; display: none;
+      box-shadow: 0 4px 20px rgba(200,212,0,0.5);
+    }
+    #btn-open:active { transform: translateX(-50%) scale(0.96); }
+
+    #btn-close {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+      background: #333; color: #fff; border: none;
+      padding: 16px 44px; font-size: 1rem; font-weight: 900;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      border-radius: 50px; cursor: pointer;
+      z-index: 999; display: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     }
   </style>
 </head>
 <body>
 
   <div id="hint">Kamera auf das <b>Paralox-Logo</b> richten</div>
-  <div id="found">PARALOX</div>
+  <button id="btn-open" onclick="openChest()">&#x1F513; Truhe öffnen</button>
+  <button id="btn-close" onclick="closeChest()">Truhe schliessen</button>
 
   <a-scene mindar-image="imageTargetSrc: ./targets.mind;"
     color-space="sRGB"
@@ -40,64 +55,180 @@
 
     <a-entity mindar-image-target="targetIndex: 0">
 
-      <!-- Boden-Leuchten-Ring -->
-      <a-torus position="0 0.01 0" radius="0.45" radius-tubular="0.012"
+      <!-- Boden-Glüh-Ring -->
+      <a-torus position="0 0 0" radius="0.32" radius-tubular="0.008"
         color="#C8D400" opacity="0.5" rotation="-90 0 0"
-        animation="property: rotation; from: -90 0 0; to: -90 0 360; dur: 5000; easing: linear; loop: true;">
+        animation="property: rotation; from: -90 0 0; to: -90 0 360; dur: 6000; easing: linear; loop: true;">
       </a-torus>
 
-      <!-- Zweiter Ring innen, gegenlaeufig -->
-      <a-torus position="0 0.01 0" radius="0.3" radius-tubular="0.007"
-        color="#e6057f" opacity="0.6" rotation="-90 0 0"
-        animation="property: rotation; from: -90 0 0; to: -90 0 -360; dur: 3500; easing: linear; loop: true;">
-      </a-torus>
+      <!-- === TRUHE === -->
 
-      <!-- Grosses gruenes Dreieck -->
-      <a-entity
-        geometry="primitive: cone; radiusBottom: 0.22; radiusTop: 0; height: 0.35; segmentsRadial: 3;"
-        material="color: #C8D400; metalness: 0.5; roughness: 0.3; emissive: #4a5000; emissiveIntensity: 0.4"
-        position="0 0.18 0"
-        animation="property: rotation; from: 0 0 0; to: 0 360 0; dur: 6000; easing: linear; loop: true"
-        animation__float="property: position; from: 0 0.14 0; to: 0 0.25 0; dur: 2200; easing: easeInOutSine; loop: true; dir: alternate">
+      <!-- Unterkörper der Truhe -->
+      <a-box id="chest-body"
+        position="0 0.1 0"
+        width="0.5" height="0.22" depth="0.35"
+        color="#5C3A1E"
+        material="roughness: 0.8; metalness: 0.1">
+      </a-box>
+
+      <!-- Truhe Vorderseite Holzmaserung -->
+      <a-box position="0 0.1 0.176"
+        width="0.46" height="0.18" depth="0.01"
+        color="#7A4E2D"
+        material="roughness: 0.9">
+      </a-box>
+
+      <!-- Metallbeschläge Ecken vorne -->
+      <a-box position="-0.22 0.1 0.176" width="0.04" height="0.22" depth="0.015" color="#B8860B" material="metalness: 0.8; roughness: 0.2"></a-box>
+      <a-box position="0.22 0.1 0.176" width="0.04" height="0.22" depth="0.015" color="#B8860B" material="metalness: 0.8; roughness: 0.2"></a-box>
+
+      <!-- Schloss vorne -->
+      <a-box position="0 0.08 0.182" width="0.06" height="0.07" depth="0.015" color="#DAA520" material="metalness: 0.9; roughness: 0.1"></a-box>
+      <a-torus position="0 0.13 0.185" radius="0.025" radius-tubular="0.008" rotation="90 0 0" color="#DAA520" material="metalness: 0.9; roughness: 0.1"></a-torus>
+
+      <!-- Deckel-Scharnier-Pivot (hinten unten am Deckel) -->
+      <a-entity id="lid-pivot" position="0 0.21 -0.175">
+
+        <!-- Deckel selbst - offset nach vorne und oben vom Pivot -->
+        <a-box id="chest-lid"
+          position="0 0.075 0.175"
+          width="0.5" height="0.15" depth="0.35"
+          color="#6B4423"
+          material="roughness: 0.8; metalness: 0.1">
+        </a-box>
+
+        <!-- Deckel Wölbung oben (halber Zylinder Effekt) -->
+        <a-box position="0 0.155 0.175"
+          width="0.46" height="0.03" depth="0.31"
+          color="#7A4E2D"
+          material="roughness: 0.9">
+        </a-box>
+
+        <!-- Metallband auf Deckel -->
+        <a-box position="0 0.15 0.175" width="0.5" height="0.025" depth="0.36" color="#B8860B" material="metalness: 0.8; roughness: 0.2"></a-box>
+        <a-box position="-0.22 0.075 0.175" width="0.04" height="0.15" depth="0.36" color="#B8860B" material="metalness: 0.8; roughness: 0.2"></a-box>
+        <a-box position="0.22 0.075 0.175" width="0.04" height="0.15" depth="0.36" color="#B8860B" material="metalness: 0.8; roughness: 0.2"></a-box>
+
       </a-entity>
 
-      <!-- Mittleres magenta Dreieck -->
-      <a-entity
-        geometry="primitive: cone; radiusBottom: 0.13; radiusTop: 0; height: 0.2; segmentsRadial: 3;"
-        material="color: #e6057f; metalness: 0.5; roughness: 0.3; emissive: #600030; emissiveIntensity: 0.4"
-        position="0 0.52 0"
-        animation="property: rotation; from: 0 0 0; to: 0 -360 0; dur: 4500; easing: linear; loop: true"
-        animation__float="property: position; from: 0 0.47 0; to: 0 0.58 0; dur: 2000; easing: easeInOutSine; loop: true; dir: alternate; delay: 300">
+      <!-- === JUWELEN (versteckt bis Truhe offen) === -->
+
+      <!-- Roter Rubin -->
+      <a-entity id="jewel-1" visible="false"
+        geometry="primitive: octahedron; radius: 0.055"
+        material="color: #FF1744; metalness: 0.9; roughness: 0.05; emissive: #aa0000; emissiveIntensity: 0.5"
+        position="-0.12 0.28 0.02"
+        animation__float="property: position; from: -0.12 0.28 0.02; to: -0.12 0.36 0.02; dur: 1800; easing: easeInOutSine; loop: true; dir: alternate"
+        animation__spin="property: rotation; from: 0 0 0; to: 0 360 0; dur: 4000; easing: linear; loop: true">
       </a-entity>
 
-      <!-- Kleines weisses Dreieck oben -->
-      <a-entity
-        geometry="primitive: cone; radiusBottom: 0.07; radiusTop: 0; height: 0.12; segmentsRadial: 3;"
-        material="color: #ffffff; metalness: 0.6; roughness: 0.2; emissive: #aaaaaa; emissiveIntensity: 0.3"
-        position="0 0.78 0"
-        animation="property: rotation; from: 0 0 0; to: 0 360 0; dur: 3000; easing: linear; loop: true"
-        animation__float="property: position; from: 0 0.74 0; to: 0 0.83 0; dur: 1800; easing: easeInOutSine; loop: true; dir: alternate; delay: 600">
+      <!-- Blauer Saphir -->
+      <a-entity id="jewel-2" visible="false"
+        geometry="primitive: octahedron; radius: 0.05"
+        material="color: #2979FF; metalness: 0.9; roughness: 0.05; emissive: #001688; emissiveIntensity: 0.5"
+        position="0.05 0.3 -0.02"
+        animation__float="property: position; from: 0.05 0.3 -0.02; to: 0.05 0.39 -0.02; dur: 2100; easing: easeInOutSine; loop: true; dir: alternate; delay: 200"
+        animation__spin="property: rotation; from: 0 0 0; to: 0 -360 0; dur: 3500; easing: linear; loop: true">
       </a-entity>
 
-      <!-- Licht gruenlich von vorne -->
-      <a-light type="point" color="#C8D400" intensity="2.5" position="0 0.8 0.5" distance="3"></a-light>
-      <!-- Licht magenta von hinten -->
-      <a-light type="point" color="#e6057f" intensity="1.5" position="0 0.3 -0.5" distance="2"></a-light>
+      <!-- Grüner Smaragd -->
+      <a-entity id="jewel-3" visible="false"
+        geometry="primitive: octahedron; radius: 0.045"
+        material="color: #00E676; metalness: 0.9; roughness: 0.05; emissive: #005500; emissiveIntensity: 0.5"
+        position="0.14 0.27 0.05"
+        animation__float="property: position; from: 0.14 0.27 0.05; to: 0.14 0.35 0.05; dur: 1600; easing: easeInOutSine; loop: true; dir: alternate; delay: 400"
+        animation__spin="property: rotation; from: 0 0 0; to: 0 360 0; dur: 5000; easing: linear; loop: true">
+      </a-entity>
+
+      <!-- Lila Amethyst -->
+      <a-entity id="jewel-4" visible="false"
+        geometry="primitive: octahedron; radius: 0.04"
+        material="color: #E040FB; metalness: 0.9; roughness: 0.05; emissive: #660088; emissiveIntensity: 0.5"
+        position="-0.04 0.31 -0.06"
+        animation__float="property: position; from: -0.04 0.31 -0.06; to: -0.04 0.4 -0.06; dur: 2300; easing: easeInOutSine; loop: true; dir: alternate; delay: 600"
+        animation__spin="property: rotation; from: 0 0 0; to: 0 -360 0; dur: 4500; easing: linear; loop: true">
+      </a-entity>
+
+      <!-- Goldmünzen im Boden -->
+      <a-cylinder id="coin-1" visible="false" position="-0.1 0.22 0.05" radius="0.04" height="0.015" color="#FFD700" material="metalness: 0.9; roughness: 0.2"></a-cylinder>
+      <a-cylinder id="coin-2" visible="false" position="0.08 0.22 -0.04" radius="0.035" height="0.015" color="#FFD700" material="metalness: 0.9; roughness: 0.2"></a-cylinder>
+      <a-cylinder id="coin-3" visible="false" position="0.0 0.22 0.08" radius="0.03" height="0.015" color="#FFC107" material="metalness: 0.9; roughness: 0.2"></a-cylinder>
+
+      <!-- Glitzerlicht wenn offen -->
+      <a-light id="jewel-light" type="point" color="#FFD700" intensity="0" position="0 0.35 0" distance="1.5"></a-light>
+
+      <!-- Grundlicht -->
+      <a-light type="point" color="#fff5cc" intensity="1.5" position="0.3 0.8 0.4" distance="3"></a-light>
+      <a-light type="ambient" color="#ffffff" intensity="0.4"></a-light>
 
     </a-entity>
-
   </a-scene>
 
   <script>
+    var isOpen = false;
+
+    // Logo erkannt/verloren
     var target = document.querySelector('[mindar-image-target]');
     target.addEventListener('targetFound', function() {
-      document.getElementById('found').style.display = 'block';
       document.getElementById('hint').style.display = 'none';
+      document.getElementById('btn-open').style.display = isOpen ? 'none' : 'block';
+      document.getElementById('btn-close').style.display = isOpen ? 'block' : 'none';
     });
     target.addEventListener('targetLost', function() {
-      document.getElementById('found').style.display = 'none';
       document.getElementById('hint').style.display = 'block';
+      document.getElementById('btn-open').style.display = 'none';
+      document.getElementById('btn-close').style.display = 'none';
     });
+
+    function openChest() {
+      isOpen = true;
+      document.getElementById('btn-open').style.display = 'none';
+      document.getElementById('btn-close').style.display = 'block';
+
+      // Deckel aufklappen
+      var pivot = document.getElementById('lid-pivot');
+      pivot.setAttribute('animation', {
+        property: 'rotation',
+        from: '0 0 0',
+        to: '-110 0 0',
+        dur: 800,
+        easing: 'easeOutQuad'
+      });
+
+      // Juwelen erscheinen mit Verzögerung
+      setTimeout(function() {
+        var jewels = ['jewel-1','jewel-2','jewel-3','jewel-4','coin-1','coin-2','coin-3'];
+        jewels.forEach(function(id, i) {
+          setTimeout(function() {
+            document.getElementById(id).setAttribute('visible', 'true');
+          }, i * 120);
+        });
+        // Glitzerlicht an
+        document.getElementById('jewel-light').setAttribute('light', 'intensity: 3');
+      }, 600);
+    }
+
+    function closeChest() {
+      isOpen = false;
+      document.getElementById('btn-close').style.display = 'none';
+      document.getElementById('btn-open').style.display = 'block';
+
+      // Juwelen verstecken
+      ['jewel-1','jewel-2','jewel-3','jewel-4','coin-1','coin-2','coin-3'].forEach(function(id) {
+        document.getElementById(id).setAttribute('visible', 'false');
+      });
+      document.getElementById('jewel-light').setAttribute('light', 'intensity: 0');
+
+      // Deckel schliessen
+      var pivot = document.getElementById('lid-pivot');
+      pivot.setAttribute('animation', {
+        property: 'rotation',
+        from: '-110 0 0',
+        to: '0 0 0',
+        dur: 600,
+        easing: 'easeInQuad'
+      });
+    }
   </script>
 
 </body>

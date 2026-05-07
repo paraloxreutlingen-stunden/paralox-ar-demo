@@ -13,20 +13,22 @@
       padding: 12px 24px; border-radius: 30px; font-size: 0.9rem;
       border: 1px solid rgba(200,212,0,0.5);
       z-index: 999; white-space: nowrap; pointer-events: none;
+      font-family: Arial, sans-serif;
     }
     #hint b { color: #C8D400; }
     #found {
       position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
       background: #C8D400; color: #111;
       padding: 10px 24px; border-radius: 20px; font-size: 0.9rem; font-weight: bold;
-      z-index: 999; display: none;
+      z-index: 999; display: none; font-family: Arial, sans-serif;
+      letter-spacing: 0.1em;
     }
   </style>
 </head>
 <body>
 
   <div id="hint">Kamera auf das <b>Paralox-Logo</b> richten</div>
-  <div id="found">Logo erkannt!</div>
+  <div id="found">PARALOX</div>
 
   <a-scene mindar-image="imageTargetSrc: ./targets.mind;"
     color-space="sRGB"
@@ -37,9 +39,51 @@
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
     <a-entity mindar-image-target="targetIndex: 0">
-      <a-box color="#C8D400" position="0 0 0" scale="0.3 0.3 0.3"
-        animation="property: rotation; from: 0 0 0; to: 0 360 0; dur: 3000; easing: linear; loop: true">
-      </a-box>
+
+      <!-- Boden-Leuchten-Ring -->
+      <a-torus position="0 0.01 0" radius="0.45" radius-tubular="0.012"
+        color="#C8D400" opacity="0.5" rotation="-90 0 0"
+        animation="property: rotation; from: -90 0 0; to: -90 0 360; dur: 5000; easing: linear; loop: true;">
+      </a-torus>
+
+      <!-- Zweiter Ring innen, gegenlaeufig -->
+      <a-torus position="0 0.01 0" radius="0.3" radius-tubular="0.007"
+        color="#e6057f" opacity="0.6" rotation="-90 0 0"
+        animation="property: rotation; from: -90 0 0; to: -90 0 -360; dur: 3500; easing: linear; loop: true;">
+      </a-torus>
+
+      <!-- Grosses gruenes Dreieck -->
+      <a-entity
+        geometry="primitive: cone; radiusBottom: 0.22; radiusTop: 0; height: 0.35; segmentsRadial: 3;"
+        material="color: #C8D400; metalness: 0.5; roughness: 0.3; emissive: #4a5000; emissiveIntensity: 0.4"
+        position="0 0.18 0"
+        animation="property: rotation; from: 0 0 0; to: 0 360 0; dur: 6000; easing: linear; loop: true"
+        animation__float="property: position; from: 0 0.14 0; to: 0 0.25 0; dur: 2200; easing: easeInOutSine; loop: true; dir: alternate">
+      </a-entity>
+
+      <!-- Mittleres magenta Dreieck -->
+      <a-entity
+        geometry="primitive: cone; radiusBottom: 0.13; radiusTop: 0; height: 0.2; segmentsRadial: 3;"
+        material="color: #e6057f; metalness: 0.5; roughness: 0.3; emissive: #600030; emissiveIntensity: 0.4"
+        position="0 0.52 0"
+        animation="property: rotation; from: 0 0 0; to: 0 -360 0; dur: 4500; easing: linear; loop: true"
+        animation__float="property: position; from: 0 0.47 0; to: 0 0.58 0; dur: 2000; easing: easeInOutSine; loop: true; dir: alternate; delay: 300">
+      </a-entity>
+
+      <!-- Kleines weisses Dreieck oben -->
+      <a-entity
+        geometry="primitive: cone; radiusBottom: 0.07; radiusTop: 0; height: 0.12; segmentsRadial: 3;"
+        material="color: #ffffff; metalness: 0.6; roughness: 0.2; emissive: #aaaaaa; emissiveIntensity: 0.3"
+        position="0 0.78 0"
+        animation="property: rotation; from: 0 0 0; to: 0 360 0; dur: 3000; easing: linear; loop: true"
+        animation__float="property: position; from: 0 0.74 0; to: 0 0.83 0; dur: 1800; easing: easeInOutSine; loop: true; dir: alternate; delay: 600">
+      </a-entity>
+
+      <!-- Licht gruenlich von vorne -->
+      <a-light type="point" color="#C8D400" intensity="2.5" position="0 0.8 0.5" distance="3"></a-light>
+      <!-- Licht magenta von hinten -->
+      <a-light type="point" color="#e6057f" intensity="1.5" position="0 0.3 -0.5" distance="2"></a-light>
+
     </a-entity>
 
   </a-scene>

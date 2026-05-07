@@ -6,44 +6,48 @@
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   <style>
-    body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { overflow: hidden; font-family: 'Arial', sans-serif; }
 
     #hint {
-      position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-      background: rgba(0,0,0,0.75); color: #fff;
-      padding: 12px 24px; border-radius: 30px; font-size: 0.9rem;
-      border: 1px solid rgba(200,212,0,0.5);
+      position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.8); color: #fff;
+      padding: 14px 28px; border-radius: 40px; font-size: 0.95rem;
+      border: 1px solid rgba(200,212,0,0.6);
       z-index: 999; white-space: nowrap; pointer-events: none;
+      box-shadow: 0 0 20px rgba(200,212,0,0.2);
     }
     #hint b { color: #C8D400; }
 
     #btn-open {
       position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
-      background: #C8D400; color: #111; border: none;
-      padding: 16px 44px; font-size: 1rem; font-weight: 900;
-      letter-spacing: 0.15em; text-transform: uppercase;
-      border-radius: 50px; cursor: pointer;
-      z-index: 999; display: none;
-      box-shadow: 0 4px 20px rgba(200,212,0,0.5);
+      background: linear-gradient(135deg, #DAA520, #FFD700, #DAA520);
+      color: #111; border: none;
+      padding: 18px 52px; font-size: 1.05rem; font-weight: 900;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      border-radius: 50px; cursor: pointer; z-index: 999; display: none;
+      box-shadow: 0 4px 25px rgba(218,165,32,0.7), 0 0 40px rgba(218,165,32,0.3);
+      animation: pulse-btn 2s ease-in-out infinite;
     }
-    #btn-open:active { transform: translateX(-50%) scale(0.96); }
+    @keyframes pulse-btn {
+      0%, 100% { box-shadow: 0 4px 25px rgba(218,165,32,0.7), 0 0 40px rgba(218,165,32,0.3); }
+      50% { box-shadow: 0 4px 40px rgba(218,165,32,1), 0 0 60px rgba(218,165,32,0.6); }
+    }
 
     #btn-close {
       position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
-      background: #333; color: #fff; border: none;
-      padding: 16px 44px; font-size: 1rem; font-weight: 900;
-      letter-spacing: 0.15em; text-transform: uppercase;
-      border-radius: 50px; cursor: pointer;
-      z-index: 999; display: none;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      background: rgba(40,40,40,0.9); color: #ccc; border: 1px solid #555;
+      padding: 14px 40px; font-size: 0.9rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      border-radius: 50px; cursor: pointer; z-index: 999; display: none;
     }
   </style>
 </head>
 <body>
 
   <div id="hint">Kamera auf das <b>Paralox-Logo</b> richten</div>
-  <button id="btn-open" onclick="openChest()">&#x1F513; Truhe öffnen</button>
-  <button id="btn-close" onclick="closeChest()">Truhe schliessen</button>
+  <button id="btn-open" onclick="openChest()">🔓 Truhe öffnen</button>
+  <button id="btn-close" onclick="closeChest()">🔒 Schließen</button>
 
   <a-scene mindar-image="imageTargetSrc: ./targets.mind;"
     color-space="sRGB"
@@ -55,124 +59,247 @@
 
     <a-entity mindar-image-target="targetIndex: 0">
 
-      <!-- Boden-Glüh-Ring -->
-      <a-torus position="0 0 0" radius="0.32" radius-tubular="0.008"
-        color="#C8D400" opacity="0.5" rotation="-90 0 0"
-        animation="property: rotation; from: -90 0 0; to: -90 0 360; dur: 6000; easing: linear; loop: true;">
+      <!-- BODEN: Magischer Glühkreis -->
+      <a-torus position="0 0.005 0" radius="0.55" radius-tubular="0.018"
+        material="color: #FFD700; emissive: #FFD700; emissiveIntensity: 1.5; metalness: 0.9; roughness: 0.1"
+        rotation="-90 0 0"
+        animation="property: rotation; from: -90 0 0; to: -90 0 360; dur: 5000; easing: linear; loop: true">
+      </a-torus>
+      <a-torus position="0 0.005 0" radius="0.45" radius-tubular="0.008"
+        material="color: #FFA500; emissive: #FFA500; emissiveIntensity: 1.2"
+        rotation="-90 0 0"
+        animation="property: rotation; from: -90 0 0; to: -90 0 -360; dur: 3500; easing: linear; loop: true">
       </a-torus>
 
-      <!-- === TRUHE === -->
+      <!-- TRUHEN-SOCKEL (leichter Schatten) -->
+      <a-cylinder position="0 0.01 0" radius="0.42" height="0.015"
+        material="color: #1a0f00; opacity: 0.5; transparent: true">
+      </a-cylinder>
 
-      <!-- Unterkörper der Truhe -->
-      <a-box id="chest-body"
-        position="0 0.1 0"
-        width="0.5" height="0.22" depth="0.35"
-        color="#5C3A1E"
-        material="roughness: 0.8; metalness: 0.1">
+      <!-- ========== TRUHEN-KÖRPER ========== -->
+      <!-- Haupt-Körper dunkelbraun -->
+      <a-box position="0 0.2 0" width="0.85" height="0.4" depth="0.58"
+        material="color: #3D1F08; roughness: 0.85; metalness: 0.05; emissive: #1a0a00; emissiveIntensity: 0.3">
       </a-box>
 
-      <!-- Truhe Vorderseite Holzmaserung -->
-      <a-box position="0 0.1 0.176"
-        width="0.46" height="0.18" depth="0.01"
-        color="#7A4E2D"
-        material="roughness: 0.9">
+      <!-- Holzplanken: 3 horizontale Streifen (heller Holzton) -->
+      <a-box position="0 0.26 0.292" width="0.81" height="0.05" depth="0.008"
+        material="color: #7B3F10; roughness: 0.9; emissive: #4a2008; emissiveIntensity: 0.4">
+      </a-box>
+      <a-box position="0 0.20 0.292" width="0.81" height="0.05" depth="0.008"
+        material="color: #8B4513; roughness: 0.9; emissive: #4a2008; emissiveIntensity: 0.4">
+      </a-box>
+      <a-box position="0 0.14 0.292" width="0.81" height="0.05" depth="0.008"
+        material="color: #7B3F10; roughness: 0.9; emissive: #4a2008; emissiveIntensity: 0.4">
       </a-box>
 
-      <!-- Metallbeschläge Ecken vorne -->
-      <a-box position="-0.22 0.1 0.176" width="0.04" height="0.22" depth="0.015" color="#B8860B" material="metalness: 0.8; roughness: 0.2"></a-box>
-      <a-box position="0.22 0.1 0.176" width="0.04" height="0.22" depth="0.015" color="#B8860B" material="metalness: 0.8; roughness: 0.2"></a-box>
+      <!-- Metallband horizontal Mitte -->
+      <a-box position="0 0.2 0" width="0.87" height="0.045" depth="0.6"
+        material="color: #B8860B; emissive: #8B6914; emissiveIntensity: 0.8; metalness: 0.95; roughness: 0.1">
+      </a-box>
 
-      <!-- Schloss vorne -->
-      <a-box position="0 0.08 0.182" width="0.06" height="0.07" depth="0.015" color="#DAA520" material="metalness: 0.9; roughness: 0.1"></a-box>
-      <a-torus position="0 0.13 0.185" radius="0.025" radius-tubular="0.008" rotation="90 0 0" color="#DAA520" material="metalness: 0.9; roughness: 0.1"></a-torus>
+      <!-- Metallecken vorne links/rechts -->
+      <a-box position="-0.41 0.2 0.295" width="0.055" height="0.42" depth="0.015"
+        material="color: #DAA520; emissive: #B8860B; emissiveIntensity: 1.0; metalness: 0.95; roughness: 0.08">
+      </a-box>
+      <a-box position="0.41 0.2 0.295" width="0.055" height="0.42" depth="0.015"
+        material="color: #DAA520; emissive: #B8860B; emissiveIntensity: 1.0; metalness: 0.95; roughness: 0.08">
+      </a-box>
 
-      <!-- Deckel-Scharnier-Pivot (hinten unten am Deckel) -->
-      <a-entity id="lid-pivot" position="0 0.21 -0.175">
+      <!-- Metallecken Seiten -->
+      <a-box position="-0.427 0.2 0" width="0.015" height="0.42" depth="0.6"
+        material="color: #DAA520; emissive: #B8860B; emissiveIntensity: 0.8; metalness: 0.95; roughness: 0.08">
+      </a-box>
+      <a-box position="0.427 0.2 0" width="0.015" height="0.42" depth="0.6"
+        material="color: #DAA520; emissive: #B8860B; emissiveIntensity: 0.8; metalness: 0.95; roughness: 0.08">
+      </a-box>
 
-        <!-- Deckel selbst - offset nach vorne und oben vom Pivot -->
-        <a-box id="chest-lid"
-          position="0 0.075 0.175"
-          width="0.5" height="0.15" depth="0.35"
-          color="#6B4423"
-          material="roughness: 0.8; metalness: 0.1">
+      <!-- Schloss-Platte -->
+      <a-box position="0 0.18 0.298" width="0.1" height="0.12" depth="0.012"
+        material="color: #FFD700; emissive: #DAA520; emissiveIntensity: 1.2; metalness: 0.98; roughness: 0.05">
+      </a-box>
+      <!-- Schlüsselloch -->
+      <a-cylinder position="0 0.2 0.31" radius="0.018" height="0.01"
+        material="color: #1a0a00; emissive: #000; emissiveIntensity: 1">
+      </a-cylinder>
+      <a-box position="0 0.163 0.31" width="0.02" height="0.04" depth="0.01"
+        material="color: #1a0a00">
+      </a-box>
+
+      <!-- ========== DECKEL-PIVOT ========== -->
+      <a-entity id="lid-pivot" position="0 0.4 -0.29">
+
+        <!-- Deckel-Grundform -->
+        <a-box position="0 0.115 0.29" width="0.85" height="0.23" depth="0.58"
+          material="color: #4A2410; roughness: 0.85; metalness: 0.05; emissive: #200d00; emissiveIntensity: 0.3">
         </a-box>
 
-        <!-- Deckel Wölbung oben (halber Zylinder Effekt) -->
-        <a-box position="0 0.155 0.175"
-          width="0.46" height="0.03" depth="0.31"
-          color="#7A4E2D"
-          material="roughness: 0.9">
+        <!-- Gewölbung oben (Zylinder-Hälfte simuliert mit mehreren Boxen) -->
+        <a-box position="0 0.24 0.29" width="0.83" height="0.04" depth="0.56"
+          material="color: #5C3018; roughness: 0.8; emissive: #2a1200; emissiveIntensity: 0.35">
+        </a-box>
+        <a-box position="0 0.255 0.29" width="0.78" height="0.035" depth="0.52"
+          material="color: #6B3820; roughness: 0.8; emissive: #331500; emissiveIntensity: 0.4">
+        </a-box>
+        <a-box position="0 0.265 0.29" width="0.68" height="0.025" depth="0.48"
+          material="color: #7A4228; roughness: 0.8; emissive: #3d1a00; emissiveIntensity: 0.4">
         </a-box>
 
-        <!-- Metallband auf Deckel -->
-        <a-box position="0 0.15 0.175" width="0.5" height="0.025" depth="0.36" color="#B8860B" material="metalness: 0.8; roughness: 0.2"></a-box>
-        <a-box position="-0.22 0.075 0.175" width="0.04" height="0.15" depth="0.36" color="#B8860B" material="metalness: 0.8; roughness: 0.2"></a-box>
-        <a-box position="0.22 0.075 0.175" width="0.04" height="0.15" depth="0.36" color="#B8860B" material="metalness: 0.8; roughness: 0.2"></a-box>
+        <!-- Holzplanken Deckel -->
+        <a-box position="0 0.16 0.582" width="0.81" height="0.05" depth="0.008"
+          material="color: #8B4513; roughness: 0.9; emissive: #4a2008; emissiveIntensity: 0.4">
+        </a-box>
+        <a-box position="0 0.10 0.582" width="0.81" height="0.05" depth="0.008"
+          material="color: #7B3F10; roughness: 0.9; emissive: #4a2008; emissiveIntensity: 0.4">
+        </a-box>
+
+        <!-- Metallband Deckel oben -->
+        <a-box position="0 0.268 0.29" width="0.87" height="0.02" depth="0.6"
+          material="color: #FFD700; emissive: #DAA520; emissiveIntensity: 1.2; metalness: 0.95; roughness: 0.08">
+        </a-box>
+        <!-- Metallband Deckel Mitte -->
+        <a-box position="0 0.115 0.29" width="0.87" height="0.02" depth="0.6"
+          material="color: #DAA520; emissive: #B8860B; emissiveIntensity: 0.9; metalness: 0.95; roughness: 0.08">
+        </a-box>
+
+        <!-- Metallecken Deckel -->
+        <a-box position="-0.427 0.115 0.29" width="0.015" height="0.28" depth="0.6"
+          material="color: #DAA520; emissive: #B8860B; emissiveIntensity: 0.9; metalness: 0.95; roughness: 0.08">
+        </a-box>
+        <a-box position="0.427 0.115 0.29" width="0.015" height="0.28" depth="0.6"
+          material="color: #DAA520; emissive: #B8860B; emissiveIntensity: 0.9; metalness: 0.95; roughness: 0.08">
+        </a-box>
+
+        <!-- Schanier-Zylinder -->
+        <a-cylinder position="-0.28 0 0.29" radius="0.025" height="0.06" rotation="0 0 90"
+          material="color: #FFD700; emissive: #DAA520; emissiveIntensity: 1; metalness: 0.98; roughness: 0.05">
+        </a-cylinder>
+        <a-cylinder position="0.28 0 0.29" radius="0.025" height="0.06" rotation="0 0 90"
+          material="color: #FFD700; emissive: #DAA520; emissiveIntensity: 1; metalness: 0.98; roughness: 0.05">
+        </a-cylinder>
 
       </a-entity>
 
-      <!-- === JUWELEN (versteckt bis Truhe offen) === -->
+      <!-- ========== SAMTAUSKLEIDUNG (sichtbar wenn offen) ========== -->
+      <a-box id="velvet" visible="false"
+        position="0 0.22 0" width="0.78" height="0.01" depth="0.52"
+        material="color: #8B0000; roughness: 1; emissive: #5a0000; emissiveIntensity: 0.6">
+      </a-box>
 
-      <!-- Roter Rubin -->
+      <!-- ========== JUWELEN ========== -->
+
+      <!-- Rubin - rot -->
       <a-entity id="jewel-1" visible="false"
-        geometry="primitive: octahedron; radius: 0.055"
-        material="color: #FF1744; metalness: 0.9; roughness: 0.05; emissive: #aa0000; emissiveIntensity: 0.5"
-        position="-0.12 0.28 0.02"
-        animation__float="property: position; from: -0.12 0.28 0.02; to: -0.12 0.36 0.02; dur: 1800; easing: easeInOutSine; loop: true; dir: alternate"
-        animation__spin="property: rotation; from: 0 0 0; to: 0 360 0; dur: 4000; easing: linear; loop: true">
+        geometry="primitive: octahedron; radius: 0.075"
+        material="color: #FF1744; emissive: #FF1744; emissiveIntensity: 2.5; metalness: 0.95; roughness: 0.02"
+        position="-0.18 0.33 0.05"
+        animation__float="property: position; from: -0.18 0.32 0.05; to: -0.18 0.42 0.05; dur: 1800; easing: easeInOutSine; loop: true; dir: alternate"
+        animation__spin="property: rotation; from: 0 0 0; to: 0 360 20; dur: 3500; easing: linear; loop: true">
       </a-entity>
 
-      <!-- Blauer Saphir -->
+      <!-- Saphir - blau -->
       <a-entity id="jewel-2" visible="false"
-        geometry="primitive: octahedron; radius: 0.05"
-        material="color: #2979FF; metalness: 0.9; roughness: 0.05; emissive: #001688; emissiveIntensity: 0.5"
-        position="0.05 0.3 -0.02"
-        animation__float="property: position; from: 0.05 0.3 -0.02; to: 0.05 0.39 -0.02; dur: 2100; easing: easeInOutSine; loop: true; dir: alternate; delay: 200"
-        animation__spin="property: rotation; from: 0 0 0; to: 0 -360 0; dur: 3500; easing: linear; loop: true">
+        geometry="primitive: octahedron; radius: 0.068"
+        material="color: #2979FF; emissive: #2979FF; emissiveIntensity: 2.5; metalness: 0.95; roughness: 0.02"
+        position="0.06 0.36 -0.04"
+        animation__float="property: position; from: 0.06 0.35 -0.04; to: 0.06 0.46 -0.04; dur: 2100; easing: easeInOutSine; loop: true; dir: alternate; delay: 250"
+        animation__spin="property: rotation; from: 0 0 0; to: 0 -360 -15; dur: 4000; easing: linear; loop: true">
       </a-entity>
 
-      <!-- Grüner Smaragd -->
+      <!-- Smaragd - grün -->
       <a-entity id="jewel-3" visible="false"
-        geometry="primitive: octahedron; radius: 0.045"
-        material="color: #00E676; metalness: 0.9; roughness: 0.05; emissive: #005500; emissiveIntensity: 0.5"
-        position="0.14 0.27 0.05"
-        animation__float="property: position; from: 0.14 0.27 0.05; to: 0.14 0.35 0.05; dur: 1600; easing: easeInOutSine; loop: true; dir: alternate; delay: 400"
-        animation__spin="property: rotation; from: 0 0 0; to: 0 360 0; dur: 5000; easing: linear; loop: true">
+        geometry="primitive: octahedron; radius: 0.062"
+        material="color: #00E676; emissive: #00E676; emissiveIntensity: 2.5; metalness: 0.95; roughness: 0.02"
+        position="0.2 0.31 0.06"
+        animation__float="property: position; from: 0.2 0.30 0.06; to: 0.2 0.40 0.06; dur: 1600; easing: easeInOutSine; loop: true; dir: alternate; delay: 500"
+        animation__spin="property: rotation; from: 0 0 0; to: 0 360 10; dur: 4800; easing: linear; loop: true">
       </a-entity>
 
-      <!-- Lila Amethyst -->
+      <!-- Amethyst - lila -->
       <a-entity id="jewel-4" visible="false"
-        geometry="primitive: octahedron; radius: 0.04"
-        material="color: #E040FB; metalness: 0.9; roughness: 0.05; emissive: #660088; emissiveIntensity: 0.5"
-        position="-0.04 0.31 -0.06"
-        animation__float="property: position; from: -0.04 0.31 -0.06; to: -0.04 0.4 -0.06; dur: 2300; easing: easeInOutSine; loop: true; dir: alternate; delay: 600"
-        animation__spin="property: rotation; from: 0 0 0; to: 0 -360 0; dur: 4500; easing: linear; loop: true">
+        geometry="primitive: octahedron; radius: 0.055"
+        material="color: #E040FB; emissive: #E040FB; emissiveIntensity: 2.5; metalness: 0.95; roughness: 0.02"
+        position="-0.06 0.38 -0.08"
+        animation__float="property: position; from: -0.06 0.37 -0.08; to: -0.06 0.48 -0.08; dur: 2300; easing: easeInOutSine; loop: true; dir: alternate; delay: 150"
+        animation__spin="property: rotation; from: 0 0 0; to: 0 -360 25; dur: 3200; easing: linear; loop: true">
       </a-entity>
 
-      <!-- Goldmünzen im Boden -->
-      <a-cylinder id="coin-1" visible="false" position="-0.1 0.22 0.05" radius="0.04" height="0.015" color="#FFD700" material="metalness: 0.9; roughness: 0.2"></a-cylinder>
-      <a-cylinder id="coin-2" visible="false" position="0.08 0.22 -0.04" radius="0.035" height="0.015" color="#FFD700" material="metalness: 0.9; roughness: 0.2"></a-cylinder>
-      <a-cylinder id="coin-3" visible="false" position="0.0 0.22 0.08" radius="0.03" height="0.015" color="#FFC107" material="metalness: 0.9; roughness: 0.2"></a-cylinder>
+      <!-- Topas - orange -->
+      <a-entity id="jewel-5" visible="false"
+        geometry="primitive: octahedron; radius: 0.05"
+        material="color: #FF9100; emissive: #FF9100; emissiveIntensity: 2.5; metalness: 0.95; roughness: 0.02"
+        position="0.14 0.35 -0.1"
+        animation__float="property: position; from: 0.14 0.34 -0.1; to: 0.14 0.44 -0.1; dur: 2000; easing: easeInOutSine; loop: true; dir: alternate; delay: 400"
+        animation__spin="property: rotation; from: 0 0 0; to: 0 360 -20; dur: 5500; easing: linear; loop: true">
+      </a-entity>
 
-      <!-- Glitzerlicht wenn offen -->
-      <a-light id="jewel-light" type="point" color="#FFD700" intensity="0" position="0 0.35 0" distance="1.5"></a-light>
+      <!-- Goldmünzen-Stapel -->
+      <a-cylinder id="coin-1" visible="false" position="-0.15 0.225 0.1" radius="0.055" height="0.02"
+        material="color: #FFD700; emissive: #DAA520; emissiveIntensity: 1.5; metalness: 0.95; roughness: 0.1">
+      </a-cylinder>
+      <a-cylinder id="coin-2" visible="false" position="-0.15 0.245 0.1" radius="0.055" height="0.02"
+        material="color: #FFC107; emissive: #B8860B; emissiveIntensity: 1.5; metalness: 0.95; roughness: 0.1">
+      </a-cylinder>
+      <a-cylinder id="coin-3" visible="false" position="0.12 0.225 -0.05" radius="0.048" height="0.02"
+        material="color: #FFD700; emissive: #DAA520; emissiveIntensity: 1.5; metalness: 0.95; roughness: 0.1">
+      </a-cylinder>
+      <a-cylinder id="coin-4" visible="false" position="0.12 0.245 -0.05" radius="0.048" height="0.02"
+        material="color: #FFC107; emissive: #B8860B; emissiveIntensity: 1.5; metalness: 0.95; roughness: 0.1">
+      </a-cylinder>
+      <a-cylinder id="coin-5" visible="false" position="0.12 0.265 -0.05" radius="0.048" height="0.02"
+        material="color: #FFD700; emissive: #DAA520; emissiveIntensity: 1.5; metalness: 0.95; roughness: 0.1">
+      </a-cylinder>
 
-      <!-- Grundlicht -->
-      <a-light type="point" color="#fff5cc" intensity="1.5" position="0.3 0.8 0.4" distance="3"></a-light>
-      <a-light type="ambient" color="#ffffff" intensity="0.4"></a-light>
+      <!-- Magische Funken: kleine Sterne die aufsteigen wenn offen -->
+      <a-sphere id="spark-1" visible="false" radius="0.012"
+        material="color: #FFD700; emissive: #FFD700; emissiveIntensity: 5"
+        position="-0.1 0.3 0.05"
+        animation__up="property: position; from: -0.1 0.28 0.05; to: -0.1 0.75 0.05; dur: 2000; easing: easeInQuad; loop: true; delay: 0"
+        animation__fade="property: material.opacity; from: 1; to: 0; dur: 2000; easing: easeInQuad; loop: true; delay: 0">
+      </a-sphere>
+      <a-sphere id="spark-2" visible="false" radius="0.01"
+        material="color: #FF1744; emissive: #FF1744; emissiveIntensity: 5"
+        position="0.08 0.3 -0.03"
+        animation__up="property: position; from: 0.08 0.28 -0.03; to: 0.08 0.8 -0.03; dur: 2400; easing: easeInQuad; loop: true; delay: 400"
+        animation__fade="property: material.opacity; from: 1; to: 0; dur: 2400; easing: easeInQuad; loop: true; delay: 400">
+      </a-sphere>
+      <a-sphere id="spark-3" visible="false" radius="0.014"
+        material="color: #2979FF; emissive: #2979FF; emissiveIntensity: 5"
+        position="0.15 0.3 0.08"
+        animation__up="property: position; from: 0.15 0.28 0.08; to: 0.15 0.72 0.08; dur: 1800; easing: easeInQuad; loop: true; delay: 700"
+        animation__fade="property: material.opacity; from: 1; to: 0; dur: 1800; easing: easeInQuad; loop: true; delay: 700">
+      </a-sphere>
+      <a-sphere id="spark-4" visible="false" radius="0.009"
+        material="color: #00E676; emissive: #00E676; emissiveIntensity: 5"
+        position="-0.18 0.3 -0.06"
+        animation__up="property: position; from: -0.18 0.28 -0.06; to: -0.18 0.78 -0.06; dur: 2200; easing: easeInQuad; loop: true; delay: 200"
+        animation__fade="property: material.opacity; from: 1; to: 0; dur: 2200; easing: easeInQuad; loop: true; delay: 200">
+      </a-sphere>
+
+      <!-- LICHT: Dauerlicht warm -->
+      <a-light type="point" color="#FFF5CC" intensity="2.5" position="0.4 1.0 0.5" distance="4"></a-light>
+      <a-light type="point" color="#FFE4B5" intensity="1.5" position="-0.3 0.8 -0.4" distance="3"></a-light>
+      <a-light type="ambient" color="#ffffff" intensity="0.6"></a-light>
+
+      <!-- LICHT: Goldenes Schatz-Licht (nur wenn offen) -->
+      <a-light id="treasure-glow" type="point" color="#FFD700" intensity="0" position="0 0.45 0.1" distance="2"></a-light>
+      <!-- Farbiges Juwelen-Licht -->
+      <a-light id="jewel-light" type="point" color="#ff88ff" intensity="0" position="0 0.5 0" distance="2"></a-light>
 
     </a-entity>
   </a-scene>
 
   <script>
     var isOpen = false;
-
-    // Logo erkannt/verloren
     var target = document.querySelector('[mindar-image-target]');
+
     target.addEventListener('targetFound', function() {
       document.getElementById('hint').style.display = 'none';
-      document.getElementById('btn-open').style.display = isOpen ? 'none' : 'block';
-      document.getElementById('btn-close').style.display = isOpen ? 'block' : 'none';
+      if (isOpen) {
+        document.getElementById('btn-close').style.display = 'block';
+      } else {
+        document.getElementById('btn-open').style.display = 'block';
+      }
     });
     target.addEventListener('targetLost', function() {
       document.getElementById('hint').style.display = 'block';
@@ -189,23 +316,27 @@
       var pivot = document.getElementById('lid-pivot');
       pivot.setAttribute('animation', {
         property: 'rotation',
-        from: '0 0 0',
-        to: '-110 0 0',
-        dur: 800,
-        easing: 'easeOutQuad'
+        from: '0 0 0', to: '-115 0 0',
+        dur: 900, easing: 'easeOutBack'
       });
 
-      // Juwelen erscheinen mit Verzögerung
+      // Samtauskleidung + Objekte erscheinen
       setTimeout(function() {
-        var jewels = ['jewel-1','jewel-2','jewel-3','jewel-4','coin-1','coin-2','coin-3'];
-        jewels.forEach(function(id, i) {
+        document.getElementById('velvet').setAttribute('visible', 'true');
+
+        var items = ['jewel-1','jewel-2','jewel-3','jewel-4','jewel-5',
+                     'coin-1','coin-2','coin-3','coin-4','coin-5',
+                     'spark-1','spark-2','spark-3','spark-4'];
+        items.forEach(function(id, i) {
           setTimeout(function() {
             document.getElementById(id).setAttribute('visible', 'true');
-          }, i * 120);
+          }, i * 80);
         });
-        // Glitzerlicht an
-        document.getElementById('jewel-light').setAttribute('light', 'intensity: 3');
-      }, 600);
+
+        // Lichter an
+        document.getElementById('treasure-glow').setAttribute('light', 'intensity: 4');
+        document.getElementById('jewel-light').setAttribute('light', 'intensity: 2');
+      }, 700);
     }
 
     function closeChest() {
@@ -213,21 +344,24 @@
       document.getElementById('btn-close').style.display = 'none';
       document.getElementById('btn-open').style.display = 'block';
 
-      // Juwelen verstecken
-      ['jewel-1','jewel-2','jewel-3','jewel-4','coin-1','coin-2','coin-3'].forEach(function(id) {
+      // Alles verstecken
+      ['jewel-1','jewel-2','jewel-3','jewel-4','jewel-5',
+       'coin-1','coin-2','coin-3','coin-4','coin-5',
+       'spark-1','spark-2','spark-3','spark-4','velvet'].forEach(function(id) {
         document.getElementById(id).setAttribute('visible', 'false');
       });
+      document.getElementById('treasure-glow').setAttribute('light', 'intensity: 0');
       document.getElementById('jewel-light').setAttribute('light', 'intensity: 0');
 
       // Deckel schliessen
-      var pivot = document.getElementById('lid-pivot');
-      pivot.setAttribute('animation', {
-        property: 'rotation',
-        from: '-110 0 0',
-        to: '0 0 0',
-        dur: 600,
-        easing: 'easeInQuad'
-      });
+      setTimeout(function() {
+        var pivot = document.getElementById('lid-pivot');
+        pivot.setAttribute('animation', {
+          property: 'rotation',
+          from: '-115 0 0', to: '0 0 0',
+          dur: 700, easing: 'easeInQuad'
+        });
+      }, 100);
     }
   </script>
 
